@@ -55,6 +55,9 @@
             lblStatus = new ToolStripStatusLabel();
             toolStripStatusLabelSpring = new ToolStripStatusLabel();
             lblEMR = new ToolStripStatusLabel();
+            txtLimit = new TextBox();
+            lblPart = new Label();
+            lblCert = new Label();
             tabControl.SuspendLayout();
             tabBoPhan.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvBoPhan).BeginInit();
@@ -86,7 +89,7 @@
             tabControl.Location = new Point(0, 49);
             tabControl.Name = "tabControl";
             tabControl.SelectedIndex = 0;
-            tabControl.Size = new Size(800, 242);
+            tabControl.Size = new Size(800, 379);
             tabControl.TabIndex = 0;
             tabControl.SelectedIndexChanged += tabControl1_SelectedIndexChanged;
             // 
@@ -96,7 +99,7 @@
             tabBoPhan.Location = new Point(4, 24);
             tabBoPhan.Name = "tabBoPhan";
             tabBoPhan.Padding = new Padding(3);
-            tabBoPhan.Size = new Size(792, 214);
+            tabBoPhan.Size = new Size(792, 351);
             tabBoPhan.TabIndex = 0;
             tabBoPhan.Text = "1. Bộ phận";
             tabBoPhan.UseVisualStyleBackColor = true;
@@ -107,8 +110,10 @@
             dgvBoPhan.Dock = DockStyle.Fill;
             dgvBoPhan.Location = new Point(3, 3);
             dgvBoPhan.Name = "dgvBoPhan";
-            dgvBoPhan.Size = new Size(786, 208);
+            dgvBoPhan.RowHeadersVisible = false;
+            dgvBoPhan.Size = new Size(786, 345);
             dgvBoPhan.TabIndex = 0;
+            dgvBoPhan.DataBindingComplete += Shared_DataBindingComplete;
             // 
             // tabNhanLuc
             // 
@@ -116,7 +121,7 @@
             tabNhanLuc.Location = new Point(4, 24);
             tabNhanLuc.Name = "tabNhanLuc";
             tabNhanLuc.Padding = new Padding(3);
-            tabNhanLuc.Size = new Size(792, 214);
+            tabNhanLuc.Size = new Size(792, 351);
             tabNhanLuc.TabIndex = 1;
             tabNhanLuc.Text = "2. Nhân lực";
             tabNhanLuc.UseVisualStyleBackColor = true;
@@ -127,8 +132,10 @@
             dgvNhanLuc.Dock = DockStyle.Fill;
             dgvNhanLuc.Location = new Point(3, 3);
             dgvNhanLuc.Name = "dgvNhanLuc";
-            dgvNhanLuc.Size = new Size(786, 208);
+            dgvNhanLuc.RowHeadersVisible = false;
+            dgvNhanLuc.Size = new Size(786, 345);
             dgvNhanLuc.TabIndex = 1;
+            dgvNhanLuc.DataBindingComplete += Shared_DataBindingComplete;
             // 
             // tabThuoc
             // 
@@ -136,7 +143,7 @@
             tabThuoc.Location = new Point(4, 24);
             tabThuoc.Name = "tabThuoc";
             tabThuoc.Padding = new Padding(3);
-            tabThuoc.Size = new Size(792, 214);
+            tabThuoc.Size = new Size(792, 351);
             tabThuoc.TabIndex = 2;
             tabThuoc.Text = "3. Thuốc";
             tabThuoc.UseVisualStyleBackColor = true;
@@ -147,8 +154,10 @@
             dgvThuoc.Dock = DockStyle.Fill;
             dgvThuoc.Location = new Point(3, 3);
             dgvThuoc.Name = "dgvThuoc";
-            dgvThuoc.Size = new Size(786, 208);
+            dgvThuoc.RowHeadersVisible = false;
+            dgvThuoc.Size = new Size(786, 345);
             dgvThuoc.TabIndex = 1;
+            dgvThuoc.DataBindingComplete += Shared_DataBindingComplete;
             // 
             // tabVatTu
             // 
@@ -156,7 +165,7 @@
             tabVatTu.Location = new Point(4, 24);
             tabVatTu.Name = "tabVatTu";
             tabVatTu.Padding = new Padding(3);
-            tabVatTu.Size = new Size(792, 214);
+            tabVatTu.Size = new Size(792, 351);
             tabVatTu.TabIndex = 3;
             tabVatTu.Text = "4. Vật tư";
             tabVatTu.UseVisualStyleBackColor = true;
@@ -167,8 +176,10 @@
             dgvVatTu.Dock = DockStyle.Fill;
             dgvVatTu.Location = new Point(3, 3);
             dgvVatTu.Name = "dgvVatTu";
-            dgvVatTu.Size = new Size(786, 208);
+            dgvVatTu.RowHeadersVisible = false;
+            dgvVatTu.Size = new Size(786, 345);
             dgvVatTu.TabIndex = 1;
+            dgvVatTu.DataBindingComplete += Shared_DataBindingComplete;
             // 
             // tabDichVu
             // 
@@ -176,7 +187,7 @@
             tabDichVu.Location = new Point(4, 24);
             tabDichVu.Name = "tabDichVu";
             tabDichVu.Padding = new Padding(3);
-            tabDichVu.Size = new Size(792, 214);
+            tabDichVu.Size = new Size(792, 351);
             tabDichVu.TabIndex = 4;
             tabDichVu.Text = "5. Dịch vụ";
             tabDichVu.UseVisualStyleBackColor = true;
@@ -187,8 +198,10 @@
             dgvDichVu.Dock = DockStyle.Fill;
             dgvDichVu.Location = new Point(3, 3);
             dgvDichVu.Name = "dgvDichVu";
-            dgvDichVu.Size = new Size(786, 208);
+            dgvDichVu.RowHeadersVisible = false;
+            dgvDichVu.Size = new Size(786, 345);
             dgvDichVu.TabIndex = 1;
+            dgvDichVu.DataBindingComplete += Shared_DataBindingComplete;
             // 
             // tabMay
             // 
@@ -196,7 +209,7 @@
             tabMay.Location = new Point(4, 24);
             tabMay.Name = "tabMay";
             tabMay.Padding = new Padding(3);
-            tabMay.Size = new Size(792, 214);
+            tabMay.Size = new Size(792, 351);
             tabMay.TabIndex = 5;
             tabMay.Text = "6. Máy";
             tabMay.UseVisualStyleBackColor = true;
@@ -207,8 +220,10 @@
             dgvMay.Dock = DockStyle.Fill;
             dgvMay.Location = new Point(3, 3);
             dgvMay.Name = "dgvMay";
-            dgvMay.Size = new Size(786, 208);
+            dgvMay.RowHeadersVisible = false;
+            dgvMay.Size = new Size(786, 345);
             dgvMay.TabIndex = 1;
+            dgvMay.DataBindingComplete += Shared_DataBindingComplete;
             // 
             // tabC79
             // 
@@ -216,7 +231,7 @@
             tabC79.Location = new Point(4, 24);
             tabC79.Name = "tabC79";
             tabC79.Padding = new Padding(3);
-            tabC79.Size = new Size(792, 214);
+            tabC79.Size = new Size(792, 351);
             tabC79.TabIndex = 6;
             tabC79.Text = "Tổng hợp C79";
             tabC79.UseVisualStyleBackColor = true;
@@ -227,8 +242,10 @@
             dgvC79.Dock = DockStyle.Fill;
             dgvC79.Location = new Point(3, 3);
             dgvC79.Name = "dgvC79";
-            dgvC79.Size = new Size(786, 208);
+            dgvC79.RowHeadersVisible = false;
+            dgvC79.Size = new Size(786, 345);
             dgvC79.TabIndex = 1;
+            dgvC79.DataBindingComplete += Shared_DataBindingComplete;
             // 
             // txtXml
             // 
@@ -237,11 +254,12 @@
             txtXml.Dock = DockStyle.Bottom;
             txtXml.Font = new Font("Consolas", 8.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
             txtXml.ForeColor = SystemColors.Window;
-            txtXml.Location = new Point(0, 291);
+            txtXml.Location = new Point(0, 357);
             txtXml.Multiline = true;
             txtXml.Name = "txtXml";
-            txtXml.Size = new Size(800, 137);
+            txtXml.Size = new Size(800, 71);
             txtXml.TabIndex = 0;
+            txtXml.Visible = false;
             txtXml.KeyDown += txtXml_KeyDown;
             txtXml.KeyPress += txtXml_KeyPress;
             txtXml.KeyUp += txtXml_KeyUp;
@@ -252,7 +270,7 @@
             btnLoadExcel.Name = "btnLoadExcel";
             btnLoadExcel.Size = new Size(89, 31);
             btnLoadExcel.TabIndex = 1;
-            btnLoadExcel.Text = "Load Excel";
+            btnLoadExcel.Text = "Nhập Excel";
             btnLoadExcel.UseVisualStyleBackColor = true;
             btnLoadExcel.Click += btnLoadExcel_Click;
             // 
@@ -262,7 +280,7 @@
             btnExportExcel.Name = "btnExportExcel";
             btnExportExcel.Size = new Size(89, 31);
             btnExportExcel.TabIndex = 1;
-            btnExportExcel.Text = "Export Excel";
+            btnExportExcel.Text = "Xuất Excel";
             btnExportExcel.UseVisualStyleBackColor = true;
             btnExportExcel.Click += btnExportExcel_Click;
             // 
@@ -270,30 +288,29 @@
             // 
             cbbCert.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             cbbCert.FormattingEnabled = true;
-            cbbCert.Location = new Point(202, 17);
+            cbbCert.Location = new Point(382, 17);
             cbbCert.Name = "cbbCert";
-            cbbCert.Size = new Size(396, 23);
+            cbbCert.Size = new Size(170, 23);
             cbbCert.TabIndex = 2;
             // 
             // btnExportXML
             // 
             btnExportXML.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnExportXML.Location = new Point(604, 12);
+            btnExportXML.Location = new Point(674, 12);
             btnExportXML.Name = "btnExportXML";
-            btnExportXML.Size = new Size(89, 31);
+            btnExportXML.Size = new Size(114, 31);
             btnExportXML.TabIndex = 1;
-            btnExportXML.Text = "Export XML";
+            btnExportXML.Text = "Xuất && Ký số XML";
             btnExportXML.UseVisualStyleBackColor = true;
             btnExportXML.Click += btnExportXml_Click;
             // 
             // btnLoadXmlFile
             // 
-            btnLoadXmlFile.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnLoadXmlFile.Location = new Point(699, 12);
+            btnLoadXmlFile.Location = new Point(202, 12);
             btnLoadXmlFile.Name = "btnLoadXmlFile";
             btnLoadXmlFile.Size = new Size(89, 31);
             btnLoadXmlFile.TabIndex = 1;
-            btnLoadXmlFile.Text = "Load Xml";
+            btnLoadXmlFile.Text = "Nhập Xml";
             btnLoadXmlFile.UseVisualStyleBackColor = true;
             btnLoadXmlFile.Click += btnLoadXmlFile_Click;
             // 
@@ -325,11 +342,43 @@
             lblEMR.Size = new Size(57, 17);
             lblEMR.Text = "emr.io.vn";
             // 
+            // txtLimit
+            // 
+            txtLimit.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            txtLimit.Location = new Point(625, 17);
+            txtLimit.Name = "txtLimit";
+            txtLimit.Size = new Size(43, 23);
+            txtLimit.TabIndex = 4;
+            txtLimit.Text = "2000";
+            txtLimit.TextAlign = HorizontalAlignment.Right;
+            // 
+            // lblPart
+            // 
+            lblPart.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            lblPart.AutoSize = true;
+            lblPart.Location = new Point(558, 20);
+            lblPart.Name = "lblPart";
+            lblPart.Size = new Size(61, 15);
+            lblPart.TabIndex = 5;
+            lblPart.Text = "Chia đoạn";
+            // 
+            // lblCert
+            // 
+            lblCert.AutoSize = true;
+            lblCert.Location = new Point(297, 20);
+            lblCert.Name = "lblCert";
+            lblCert.Size = new Size(79, 15);
+            lblCert.TabIndex = 5;
+            lblCert.Text = "Chứng thư số";
+            // 
             // frmDocument
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(lblCert);
+            Controls.Add(lblPart);
+            Controls.Add(txtLimit);
             Controls.Add(cbbCert);
             Controls.Add(btnLoadXmlFile);
             Controls.Add(btnExportXML);
@@ -391,5 +440,8 @@
         private ToolStripStatusLabel lblStatus;
         private ToolStripStatusLabel lblEMR;
         private ToolStripStatusLabel toolStripStatusLabelSpring;
+        private TextBox txtLimit;
+        private Label lblPart;
+        private Label lblCert;
     }
 }

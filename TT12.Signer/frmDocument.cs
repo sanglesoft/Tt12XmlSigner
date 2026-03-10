@@ -113,23 +113,35 @@ namespace TT12.Signer
         {
             var map = new Dictionary<Type, List<string>>
     {
-        { typeof(O79), GetProps(typeof(O79)) } ,
+        { typeof(O79), GetProps(typeof(O79)) },
         { typeof(C79_CHITIET), GetProps(typeof(C79_CHITIET)) },
         { typeof(DMBOPHANCHUYENMON), GetProps(typeof(DMBOPHANCHUYENMON)) },
         { typeof(DMNHANLUCKBCB), GetProps(typeof(DMNHANLUCKBCB)) },
-        { typeof(DMTHUOCMAUCHEPHAMMAU), GetProps(typeof(DMTHUOCMAUCHEPHAMMAU)) },
-        { typeof(DM_TBYT), GetProps(typeof(DM_TBYT)) },
-        { typeof(DMDICHVUKBCB), GetProps(typeof(DMDICHVUKBCB)) },
         { typeof(DM_TBYTTHDV), GetProps(typeof(DM_TBYTTHDV)) },
+        { typeof(DMDICHVUKBCB), GetProps(typeof(DMDICHVUKBCB)) },
+        { typeof(DMTHUOCMAUCHEPHAMMAU), GetProps(typeof(DMTHUOCMAUCHEPHAMMAU)) },
+        { typeof(DM_TBYT), GetProps(typeof(DM_TBYT)) }
     };
+
+            Type bestType = null;
+            double bestScore = 0;
 
             foreach (var kv in map)
             {
                 int match = headers.Count(h => kv.Value.Contains(h));
-                if (match >= Math.Min(5, kv.Value.Count))
-                    return kv.Key;   // trả đúng type phát hiện
+                double score = (double)match / kv.Value.Count;
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    bestType = kv.Key;
+                }
             }
-            return null;
+
+            if (bestScore < 0.3) // tối thiểu 30% match
+                return null;
+
+            return bestType;
         }
         private C79_CHITIET MapO79ToC79(O79 o)
         {
@@ -140,9 +152,17 @@ namespace TT12.Signer
                 var src = typeof(O79).GetProperty(p.Name);
                 if (src != null)
                 {
-                    var val = src.GetValue(o);
-                    if (val != null)
-                        p.SetValue(c, Convert.ChangeType(val, p.PropertyType));
+                    try
+                    {
+
+                        var val = src.GetValue(o);
+                        if (val != null)
+                            p.SetValue(c, Convert.ChangeType(val, p.PropertyType));
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Source + "\n-----------------------------\n" + ex.StackTrace, ex.Message);
+                    }
                 }
             }
 
@@ -221,42 +241,49 @@ namespace TT12.Signer
             {
                 dgvBoPhan.DataSource = list;
                 tabControl.SelectedTab = tabBoPhan;
+                tabBoPhan.Tag = typeof(DMBOPHANCHUYENMON);
             }
 
             else if (type == typeof(DMNHANLUCKBCB))
             {
                 dgvNhanLuc.DataSource = list;
                 tabControl.SelectedTab = tabNhanLuc;
+                tabNhanLuc.Tag = typeof(DMNHANLUCKBCB);
             }
 
             else if (type == typeof(DMTHUOCMAUCHEPHAMMAU))
             {
                 dgvThuoc.DataSource = list;
                 tabControl.SelectedTab = tabThuoc;
+                tabThuoc.Tag = typeof(DMTHUOCMAUCHEPHAMMAU);
             }
 
             else if (type == typeof(DM_TBYT))
             {
                 dgvVatTu.DataSource = list;
                 tabControl.SelectedTab = tabVatTu;
+                tabVatTu.Tag = typeof(DM_TBYT);
             }
 
             else if (type == typeof(DMDICHVUKBCB))
             {
                 dgvDichVu.DataSource = list;
                 tabControl.SelectedTab = tabDichVu;
+                tabDichVu.Tag = typeof(DMDICHVUKBCB);
             }
 
             else if (type == typeof(DM_TBYTTHDV))
             {
                 dgvMay.DataSource = list;
                 tabControl.SelectedTab = tabMay;
+                tabMay.Tag = typeof(DM_TBYTTHDV);
             }
 
             else if (type == typeof(C79_CHITIET))
             {
                 dgvC79.DataSource = list;
                 tabControl.SelectedTab = tabC79;
+                tabC79.Tag = typeof(C79_CHITIET);
             }
 
             GenerateXmlFromCurrentTab();
@@ -328,7 +355,7 @@ namespace TT12.Signer
                 return;
             }
 
-            txtXml.Text = BuildXml(type, data);
+            txtXml.Text = BuildXml(type,(IEnumerable)data);
         }
 
         #endregion
@@ -468,7 +495,7 @@ namespace TT12.Signer
                     .Where(c => !string.IsNullOrEmpty(c.Group) && !c.Group.Contains("localhost", StringComparison.OrdinalIgnoreCase))
                     .OrderBy(c => c.Display)   // tùy chọn: sắp xếp theo tên hiển thị
                     .ToList();
-
+                filteredList.Add (new VdoLookup { Group = "NoSign", Value = "NoSign", Display = "Không ký số" }); // Thêm tùy chọn TEST
                 cbbCert.DataSource = filteredList;
                 cbbCert.DisplayMember = nameof(VdoLookup.Display);   // ← Quan trọng: hiển thị cột này
                 cbbCert.ValueMember = nameof(VdoLookup.Value);     // ← Quan trọng: giá trị thực khi SelectedValue
@@ -480,19 +507,14 @@ namespace TT12.Signer
                 cbbCert.SelectedIndex = 0;
             }
         }
-
         private void btnExportXml_Click(object sender, EventArgs e)
         {
-
             Invoke(new Action(() =>
             {
-                lblStatus.Text = "Đang xuất Xml và ký số";
+                lblStatus.Text = (cbbCert.SelectedValue != null && cbbCert.SelectedValue.ToString() == "NoSign")
+                    ? "Đang xuất Xml"
+                    : "Đang xuất Xml và ký số";
             }));
-            if (string.IsNullOrWhiteSpace(txtXml.Text))
-            {
-                MessageBox.Show("Không có XML để ký.");
-                return;
-            }
 
             if (cbbCert.SelectedValue == null)
             {
@@ -502,25 +524,43 @@ namespace TT12.Signer
 
             string serial = cbbCert.SelectedValue.ToString();
 
-            X509Certificate2 cert = GetCertificateBySerial(serial);
+            X509Certificate2 cert = null;
 
-            if (cert == null)
+            if (serial != "NoSign")
             {
-                MessageBox.Show("Không tìm thấy certificate.");
+                cert = GetCertificateBySerial(serial);
+
+                if (cert == null)
+                {
+                    MessageBox.Show("Không tìm thấy certificate.");
+                    return;
+                }
+            }
+
+            if (tabControl.SelectedTab.Tag == null)
+            {
+                MessageBox.Show("Không có dữ liệu.");
                 return;
             }
 
-            string signedXml = SignXml(txtXml.Text, cert);
+            Type type = (Type)tabControl.SelectedTab.Tag;
 
-            txtXml.Text = signedXml;
+            IList list = GetCurrentGridData(type);
+
+            if (list == null || list.Count == 0)
+            {
+                MessageBox.Show("Không có dữ liệu.");
+                return;
+            }
+
             SaveFileDialog sfd = new SaveFileDialog();
-
             sfd.Filter = "XML files (*.xml)|*.xml";
-            sfd.FileName = tabControl.SelectedTab.Name + ".xml";
+            sfd.FileName = tabControl.SelectedTab.Tag+"_"+DateTime.UtcNow.ToString("yyyyMMddHHmmss") + "Z.xml";
 
             if (sfd.ShowDialog() == DialogResult.OK)
             {
-                File.WriteAllText(sfd.FileName, signedXml, Encoding.UTF8);
+                ExportXmlBatch(type, list, sfd.FileName, cert);
+
                 MessageBox.Show("Xuất XML thành công.");
             }
 
@@ -552,7 +592,7 @@ namespace TT12.Signer
 
         #endregion
         #region BUILD XML
-        private string BuildXml(Type type, object list)
+        private string BuildXml(Type type, IEnumerable list)
         {
             object root;
 
@@ -627,7 +667,7 @@ namespace TT12.Signer
             XmlDocument? doc = new XmlDocument();
             doc.LoadXml(xml);
 
-            if(doc.DocumentElement == null)
+            if (doc.DocumentElement == null)
                 throw new Exception("Lỗi tạo XML: không có phần tử gốc.");
 
             XmlElement? dsNode = doc.DocumentElement
@@ -657,6 +697,89 @@ namespace TT12.Signer
 
             return doc.OuterXml;
         }
+        private void ExportXmlBatch(Type type, IList list, string filePath, X509Certificate2 cert)
+        {
+            int batchSize = 2000;
+            int.TryParse(txtLimit.Text, out batchSize);
+
+            var batches = SplitBatch(list.Cast<object>().ToList(), batchSize);
+
+            string folder = Path.GetDirectoryName(filePath);
+            string name = Path.GetFileNameWithoutExtension(filePath);
+
+            int index = 1;
+
+            foreach (var batch in batches)
+            {
+                string xml = BuildXml(type, batch);
+
+                if (cert != null)
+                {
+                    xml = SignXml(xml, cert);
+                }
+
+                string path = Path.Combine(folder, $"{name}_{index}.xml");
+
+                File.WriteAllText(path, xml, Encoding.UTF8);
+
+                index++;
+            }
+        }
+        public static List<List<T>> SplitBatch<T>(IList<T> source, int size)
+        {
+            List<List<T>> result = new List<List<T>>();
+
+            for (int i = 0; i < source.Count; i += size)
+            {
+                result.Add(source.Skip(i).Take(size).ToList());
+            }
+
+            return result;
+        }
+        private IList GetCurrentGridData(Type type)
+        {
+            var grid = tabControl.SelectedTab.Controls
+                .OfType<DataGridView>()
+                .FirstOrDefault();
+
+            if (grid == null)
+                return null;
+
+            List<object> selected = new List<object>();
+
+            foreach (DataGridViewRow row in grid.Rows)
+            {
+                if (row.IsNewRow)
+                    continue;
+
+                bool isChecked = false;
+
+                if (grid.Columns.Contains("colSelected"))
+                {
+                    var val = row.Cells["colSelected"].Value;
+                    if (val != null)
+                        bool.TryParse(val.ToString(), out isChecked);
+                }
+
+                if (isChecked)
+                {
+                    selected.Add(row.DataBoundItem);
+                }
+            }
+
+            // nếu không có dòng nào được chọn → lấy tất cả
+            if (selected.Count == 0)
+            {
+                var data = grid.DataSource as IEnumerable;
+
+                if (data == null)
+                    return null;
+
+                return data.Cast<object>().ToList();
+            }
+
+            return selected;
+        }
         #endregion
         public class Utf8StringWriter : StringWriter
         {
@@ -671,7 +794,7 @@ namespace TT12.Signer
 
             XmlElement? root = doc.DocumentElement;
 
-            if(root == null)
+            if (root == null)
             {
                 throw new Exception("Xml không hợp lệ");
             }
@@ -762,7 +885,11 @@ namespace TT12.Signer
                 if (!sx.CheckSignature())
                 {
                     MessageBox.Show("Chữ ký XML không hợp lệ");
-                    return;
+                    //return; vẫn lấy dữ liệu dù chữ ký không hợp lệ
+                }
+                else
+                {
+                    MessageBox.Show("Chữ ký XML hợp lệ");
                 }
             }
             txtXml.Text = doc.OuterXml;
@@ -892,5 +1019,26 @@ namespace TT12.Signer
                 e.Handled = true;
             }
         }
+
+        private void Shared_DataBindingComplete(object sender, DataGridViewBindingCompleteEventArgs e)
+        {
+            // Ép kiểu sender về DataGridView
+            if (sender is DataGridView dgv)
+            {
+                string colName = "colSelected";
+
+                if (!dgv.Columns.Contains(colName))
+                {
+                    DataGridViewCheckBoxColumn checkBoxColumn = new DataGridViewCheckBoxColumn();
+                    checkBoxColumn.HeaderText = "";
+                    checkBoxColumn.Name = colName;
+                    checkBoxColumn.Width = 30;
+
+                    dgv.Columns.Insert(0, checkBoxColumn);
+
+                }
+            }
+        }
+
     }
 }
