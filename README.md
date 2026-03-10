@@ -4,7 +4,7 @@
 Quy định trình tự, thủ tục giám định chi phí khám bệnh, chữa bệnh bảo hiểm y tế, biểu mẫu tổng hợp thanh toán, quyết toán và biện pháp thi hành **Nghị định số 188/2025/NĐ-CP ngày 01/07/2025 của Chính phủ**.
 
 ---
-<img width="802" height="482" alt="image" src="https://github.com/user-attachments/assets/825d6561-21bc-400b-9f56-2eb175b1cbc3" />
+<img width="802" height="482" alt="image" src="https://github.com/user-attachments/assets/c90b8cf4-8fe4-4148-bde3-2eb80890bfcb" />
 ---
 
 ## ✨ Tính năng chính
